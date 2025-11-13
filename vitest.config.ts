@@ -1,17 +1,16 @@
-// vite.config.ts – vereinfachte Config ohne Vue Devtools
+// vitest.config.ts – Konfiguration für Vitest
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
+import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
+import viteConfig from './vite.config'
 
-export default defineConfig({
-  plugins: [
-    vue(),
-    // WICHTIG:
-    // KEINE @vue/devtools oder @vue/devtools-kit Plugins hier einbinden,
-    // weil sie beim Build in Node auf localStorage zugreifen würden.
-  ],
-  // optional, aber häufig nice:
-  server: {
-    port: 5173,
-  },
-})
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: 'jsdom',
+      exclude: [...configDefaults.exclude, 'e2e/**'],
+      root: fileURLToPath(new URL('./', import.meta.url)),
+    },
+  }),
+)
