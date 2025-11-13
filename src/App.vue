@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import MediaList from './components/MediaList.vue'
+import MediaList from './Components/MediaList.vue'
 
 const API = (import.meta.env.VITE_API_BASE as string | undefined) ?? ''
 const APP_TITLE =
