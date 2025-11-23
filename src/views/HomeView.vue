@@ -22,10 +22,9 @@ type SerieDto = {
   episode?: number | null
 }
 
-// API-Basis-URL: Env-Var, sonst lokal
-const API =
-  (import.meta.env.VITE_API_BASE as string | undefined) ??
-  'http://localhost:8080'
+// API-Basis-URL **hart verdrahtet**, damit Render sicher funktioniert
+const API = 'https://webtech-projekt-d919.onrender.com'
+console.log('API at runtime:', API)
 
 const loading = ref(true)
 const error = ref<string | null>(null)
