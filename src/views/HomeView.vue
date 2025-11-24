@@ -19,19 +19,25 @@ type SerieDto = {
   episode?: number | null
 }
 
-// --- API base ---
+// ---- API-Basis-URL: Env-Var oder Fallback auf dein Render-Backend ----
 const API =
   (import.meta.env.VITE_API_BASE as string | undefined) ??
-  'http://localhost:8080'
+  'https://webtech-projekt-d919.onrender.com'
 
 console.log('API Base URL:', API)
+
+// Axios-Instanz
+const api = axios.create({
+  baseURL: API
+  // kein timeout hier – Render-Free kann langsam sein
+})
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const movies = ref<FilmDto[]>([])
 const series = ref<SerieDto[]>([])
 
-// --- fallback data (if backend not reachable) ---
+// Fallback-Daten (wenn Backend leer oder kaputt)
 const fallbackMovies: FilmDto[] = [
   { id: 1, title: 'Inception', minutes: 148, notes: 'Rewatch' },
   { id: 2, title: 'Interstellar', minutes: 169 }
@@ -42,19 +48,22 @@ const fallbackSeries: SerieDto[] = [
   { id: 2, title: 'Dark – S1E1', minutes: 50 }
 ]
 
-// --- lifecycle: fetch on mount ---
+// Beim Mounten Daten vom Backend holen
 onMounted(async () => {
   try {
     const [filmsRes, seriesRes] = await Promise.all([
-      axios.get<FilmDto[]>(`${API}/api/films`, { timeout: 5000 }),
-      axios.get<SerieDto[]>(`${API}/api/series`, { timeout: 5000 })
+      api.get<FilmDto[]>('/api/films'),
+      api.get<SerieDto[]>('/api/series')
     ])
 
-    movies.value = filmsRes.data.length ? filmsRes.data : fallbackMovies
-    series.value = seriesRes.data.length ? seriesRes.data : fallbackSeries
-  } catch (err: any) {
-    console.error('axios error →', err.message)
-    error.value = err.message
+    console.log('filmsRes', filmsRes.status, filmsRes.data)
+    console.log('seriesRes', seriesRes.status, seriesRes.data)
+
+    movies.value = filmsRes.data && filmsRes.data.length ? filmsRes.data : fallbackMovies
+    series.value = seriesRes.data && seriesRes.data.length ? seriesRes.data : fallbackSeries
+  } catch (e: any) {
+    console.error('axios error →', e)
+    error.value = e?.message ?? String(e)
     movies.value = fallbackMovies
     series.value = fallbackSeries
   } finally {
@@ -65,7 +74,7 @@ onMounted(async () => {
 
 <template>
   <section>
-    <p v-if="loading">Lade Daten...</p>
+    <p v-if="loading">Lade Daten…</p>
     <p v-else-if="error" class="err">{{ error }}</p>
 
     <MediaList title="Filme" :items="movies" />
