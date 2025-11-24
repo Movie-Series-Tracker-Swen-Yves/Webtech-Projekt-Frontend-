@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import MediaList from '../Components/MediaList.vue'
 
 type FilmDto = {
@@ -23,22 +22,15 @@ type SerieDto = {
   episode?: number | null
 }
 
-// API-Basis-URL: hart auf dein Backend auf Render gesetzt
 const API = 'https://webtech-projekt-d919.onrender.com'
-console.log('API at runtime (Axios):', API)
-
-// Axios-Instanz mit Base-URL
-const api = axios.create({
-  baseURL: API,
-  timeout: 5000
-})
+console.log('API at runtime:', API)
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const movies = ref<FilmDto[]>([])
 const series = ref<SerieDto[]>([])
 
-// Fallback-Daten, falls Backend leer oder nicht erreichbar ist
+// Fallback-Daten
 const fallbackMovies: FilmDto[] = [
   { id: 1, title: 'Inception', minutes: 148, notes: 'Rewatch' },
   { id: 2, title: 'Interstellar', minutes: 169 }
@@ -49,20 +41,28 @@ const fallbackSeries: SerieDto[] = [
   { id: 2, title: 'Dark – S1E1', minutes: 50 }
 ]
 
+async function getJSON<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url)
+    if (!res.ok) {
+      console.error('GET failed', res.status, res.statusText)
+      return null
+    }
+    return (await res.json()) as T
+  } catch (e) {
+    console.error('fetch error', e)
+    return null
+  }
+}
+
 onMounted(async () => {
   try {
-    const [filmsRes, seriesRes] = await Promise.all([
-      api.get<FilmDto[]>('/api/films'),
-      api.get<SerieDto[]>('/api/series')
-    ])
-
-    const films = filmsRes.data
-    const sers = seriesRes.data
+    const films = await getJSON<FilmDto[]>(`${API}/api/films`)
+    const sers  = await getJSON<SerieDto[]>(`${API}/api/series`)
 
     movies.value = films && films.length ? films : fallbackMovies
     series.value = sers && sers.length ? sers : fallbackSeries
   } catch (e: any) {
-    console.error('axios error', e)
     error.value = e?.message ?? String(e)
     movies.value = fallbackMovies
     series.value = fallbackSeries
