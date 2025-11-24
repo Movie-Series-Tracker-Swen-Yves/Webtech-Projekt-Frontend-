@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import MediaList from '../components/MediaList.vue'
+import MediaList from '../Components/MediaList.vue'
 
 type FilmDto = {
   id: number
