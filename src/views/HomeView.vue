@@ -30,7 +30,6 @@ console.log('API at runtime (Axios):', API)
 // Axios-Instanz mit Base-URL
 const api = axios.create({
   baseURL: API,
-  timeout: 5000
 })
 
 const loading = ref(true)
