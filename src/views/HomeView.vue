@@ -19,7 +19,7 @@ type SerieDto = {
   episode?: number | null
 }
 
-// ---- API-Basis-URL: Env-Var oder Fallback auf dein Render-Backend ----
+// ---- API-Basis-URL: Env-Var oder Fallback auf dein Render-Backendd ----
 const API =
   (import.meta.env.VITE_API_BASE as string | undefined) ??
   'https://webtech-projekt-d919.onrender.com'
