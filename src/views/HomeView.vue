@@ -29,7 +29,7 @@ console.log('API Base URL:', API)
 // Axios-Instanz
 const api = axios.create({
   baseURL: API,
-  timeout: 5000
+  timeout: 15000
 })
 
 const loading = ref(true)
@@ -37,7 +37,7 @@ const error = ref<string | null>(null)
 const movies = ref<FilmDto[]>([])
 const series = ref<SerieDto[]>([])
 
-// --- Formular-State für neuen Film (POST) -----------------------------------
+// --- Formular-State für neuen Film (POST)
 const newFilmTitle = ref('')
 const newFilmMinutes = ref<number | null>(null)
 const newFilmNotes = ref('')
@@ -78,7 +78,7 @@ onMounted(async () => {
   }
 })
 
-// --- POST: neuen Film anlegen (M4) ------------------------------------------
+// --- POST: neuen Film anlegen
 async function createFilm() {
   try {
     const payload = {
