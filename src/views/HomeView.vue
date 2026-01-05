@@ -34,6 +34,7 @@ const api = axios.create({
 
 const loading = ref(true)
 const error = ref<string | null>(null)
+const formError = ref<string | null>(null)
 const movies = ref<FilmDto[]>([])
 const series = ref<SerieDto[]>([])
 
@@ -81,14 +82,24 @@ onMounted(async () => {
 // --- POST: neuen Film anlegen
 async function createFilm() {
   try {
+    formError.value = null
+    const title = newFilmTitle.value.trim()
+    if (!title) {
+      formError.value = 'Titel darf nicht leer sein.'
+      return
+    }
     const payload = {
-      title: newFilmTitle.value,
+      title,
       minutes: newFilmMinutes.value,
       notes: newFilmNotes.value || null
     }
 
     const res = await api.post<FilmDto>('/api/films', payload)
     console.log('created film', res.status, res.data)
+
+    if (!res.data || !res.data.title) {
+      throw new Error('Backend hat keinen Film zurückgegeben.')
+    }
 
     // neuen Film an Liste anhängen
     movies.value = [...movies.value, res.data]
@@ -99,7 +110,7 @@ async function createFilm() {
     newFilmNotes.value = ''
   } catch (e: any) {
     console.error('createFilm error →', e)
-    error.value = e?.message ?? String(e)
+    formError.value = e?.message ?? String(e)
   }
 }
 </script>
@@ -112,6 +123,7 @@ async function createFilm() {
     <!-- Formular für POST /api/films -->
     <form @submit.prevent="createFilm" class="film-form">
       <h2>Neuen Film anlegen</h2>
+      <p v-if="formError" class="err">{{ formError }}</p>
 
       <div class="field">
         <label>
