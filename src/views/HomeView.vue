@@ -29,7 +29,7 @@ console.log('API Base URL:', API)
 // Axios-Instanz
 const api = axios.create({
   baseURL: API,
-  timeout: 15000
+  timeout: 20000
 })
 
 const loading = ref(true)
